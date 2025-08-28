@@ -1,0 +1,13 @@
+server:
+  port: 3000
+security:
+  apiKey: "change-me"
+  enableApiKey: true
+  blacklist:
+    - 127.0.0.2
+  highRiskUAs:
+    - sqlmap
+    - curl
+load:
+  cpuThreshold: 1.5   # CPU负载阈值
+  memoryThreshold: 0.8 # 内存占用阈值(80%)
