@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>安全接口管理面板</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        padding: 24px;
+        text-align: center;
+        color: #fff;
+      }
+      main {
+        padding: 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+      }
+      section {
+        background: rgba(30, 41, 59, 0.9);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(8px);
+      }
+      h2 {
+        margin-top: 0;
+        font-size: 20px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+        padding-bottom: 8px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #cbd5f5;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.7);
+        color: #fff;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        color: #0f172a;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(34, 211, 238, 0.2);
+      }
+      pre {
+        background: rgba(15, 23, 42, 0.7);
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+        max-height: 220px;
+        font-size: 13px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .status {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .status span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(148, 163, 184, 0.1);
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+      footer {
+        text-align: center;
+        padding: 16px;
+        color: rgba(148, 163, 184, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>安全接口管理面板</h1>
+      <p>用于演示前端如何携带签名、Token等信息安全地访问后端接口。</p>
+    </header>
+    <main>
+      <section>
+        <h2>环境配置</h2>
+        <div class="grid-2">
+          <div>
+            <label for="baseUrl">接口地址</label>
+            <input id="baseUrl" value="http://localhost:3000/api/v1" />
+          </div>
+          <div>
+            <label for="token">身份Token</label>
+            <input id="token" placeholder="登录后自动填充" />
+          </div>
+        </div>
+        <div>
+          <label for="username">用户名</label>
+          <input id="username" value="admin" />
+        </div>
+        <div>
+          <label for="password">密码</label>
+          <input id="password" type="password" value="admin1234" />
+        </div>
+        <button id="loginBtn">登录获取Token</button>
+        <pre id="loginResult"></pre>
+      </section>
+
+      <section>
+        <h2>安全签名生成</h2>
+        <label for="payloadInput">请求载荷(JSON)</label>
+        <textarea id="payloadInput" rows="6">{
+  "action": "demo",
+  "timestamp": 0
+}</textarea>
+        <button id="signBtn">生成签名</button>
+        <pre id="signaturePreview"></pre>
+      </section>
+
+      <section>
+        <h2>接口调用示例</h2>
+        <div class="grid-2">
+          <div>
+            <label for="apiPath">接口路径</label>
+            <input id="apiPath" value="/business/secure-action" />
+          </div>
+          <div>
+            <label for="method">请求方法</label>
+            <select id="method">
+              <option value="POST">POST</option>
+              <option value="GET">GET</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+        </div>
+        <label for="bodyInput">请求体(JSON)</label>
+        <textarea id="bodyInput" rows="6">{
+  "data": "测试请求"
+}</textarea>
+        <button id="sendRequest">发送请求</button>
+        <pre id="responsePreview"></pre>
+      </section>
+
+      <section>
+        <h2>实时指标</h2>
+        <div class="status">
+          <span id="workerStatus">未连接</span>
+          <span id="heartbeat">--</span>
+        </div>
+        <pre id="metricsStream"></pre>
+      </section>
+
+      <section>
+        <h2>接口统计查询</h2>
+        <label for="statPath">接口路径</label>
+        <input id="statPath" value="/business/secure-action" />
+        <button id="statBtn">查询统计</button>
+        <pre id="statResult"></pre>
+      </section>
+
+      <section>
+        <h2>密钥管理</h2>
+        <label for="keyName">密钥名称</label>
+        <input id="keyName" value="测试密钥" />
+        <label for="keyType">密钥类型</label>
+        <select id="keyType">
+          <option value="time">时效性密钥</option>
+          <option value="quota">次数密钥</option>
+        </select>
+        <label for="keyTTL">有效时间(秒)</label>
+        <input id="keyTTL" type="number" value="3600" />
+        <label for="keyQuota">调用次数</label>
+        <input id="keyQuota" type="number" value="100" />
+        <button id="createKeyBtn">创建密钥</button>
+        <pre id="keyResult"></pre>
+      </section>
+    </main>
+    <footer>© 2024 安全接口演示系统 - 所有接口仅供测试使用</footer>
+
+    <script>
+      const state = {
+        token: '',
+        signature: null,
+      };
+
+      function getBaseUrl() {
+        return document.getElementById('baseUrl').value.replace(/\/$/, '');
+      }
+
+      function output(elementId, content) {
+        document.getElementById(elementId).textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+      }
+
+      function parseJsonInput(elementId) {
+        try {
+          return JSON.parse(document.getElementById(elementId).value || '{}');
+        } catch (error) {
+          alert('JSON解析失败: ' + error.message);
+          throw error;
+        }
+      }
+
+      async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const response = await fetch(`${getBaseUrl()}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          state.token = data.token;
+          document.getElementById('token').value = state.token;
+        }
+        output('loginResult', data);
+      }
+
+      async function generateSignature() {
+        const payload = parseJsonInput('payloadInput');
+        const response = await fetch(`${getBaseUrl()}/client/signature`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: state.token,
+          },
+          body: JSON.stringify({ payload }),
+        });
+        const data = await response.json();
+        state.signature = data;
+        output('signaturePreview', data);
+      }
+
+      function buildHeaders() {
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: state.token,
+        };
+        if (state.signature) {
+          headers['x-signature'] = state.signature.signature;
+          headers['x-timestamp'] = state.signature.timestamp;
+          headers['x-nonce'] = state.signature.nonce;
+        }
+        return headers;
+      }
+
+      async function sendRequest() {
+        const method = document.getElementById('method').value;
+        const path = document.getElementById('apiPath').value;
+        const body = parseJsonInput('bodyInput');
+        const options = {
+          method,
+          headers: buildHeaders(),
+        };
+        if (method !== 'GET' && method !== 'DELETE') {
+          options.body = JSON.stringify(body);
+        }
+        const response = await fetch(`${getBaseUrl()}${path}`, options);
+        const data = await response.json();
+        output('responsePreview', data);
+      }
+
+      async function queryStats() {
+        const path = document.getElementById('statPath').value;
+        const url = new URL(`${getBaseUrl()}/system/stats`);
+        url.searchParams.set('path', path);
+        const response = await fetch(url.toString(), {
+          headers: {
+            Authorization: state.token,
+          },
+        });
+        const data = await response.json();
+        output('statResult', data);
+      }
+
+      async function createKey() {
+        const payload = {
+          name: document.getElementById('keyName').value,
+          type: document.getElementById('keyType').value,
+          ttl: Number(document.getElementById('keyTTL').value),
+          quota: Number(document.getElementById('keyQuota').value),
+        };
+        const response = await fetch(`${getBaseUrl()}/auth/keys`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: state.token,
+          },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        output('keyResult', data);
+      }
+
+      function connectStream() {
+        const statusEl = document.getElementById('workerStatus');
+        const heartbeatEl = document.getElementById('heartbeat');
+        const streamEl = document.getElementById('metricsStream');
+        const eventSource = new EventSource(`${getBaseUrl().replace('/api/v1', '')}/health/stream`);
+        eventSource.onopen = () => {
+          statusEl.textContent = '已连接';
+        };
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          heartbeatEl.textContent = new Date(data.timestamp).toLocaleTimeString();
+          streamEl.textContent = JSON.stringify(data, null, 2);
+        };
+        eventSource.onerror = () => {
+          statusEl.textContent = '连接异常，稍后自动重试';
+        };
+      }
+
+      document.getElementById('loginBtn').addEventListener('click', login);
+      document.getElementById('signBtn').addEventListener('click', generateSignature);
+      document.getElementById('sendRequest').addEventListener('click', sendRequest);
+      document.getElementById('statBtn').addEventListener('click', queryStats);
+      document.getElementById('createKeyBtn').addEventListener('click', createKey);
+
+      connectStream();
+    </script>
+  </body>
+</html>
