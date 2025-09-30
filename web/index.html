@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Secure API 控制台</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Secure API 控制台</h1>
+      <p>所有前端请求均需携带时间戳与签名，防止重放攻击。</p>
+      <section id="health">
+        <h2>健康检查</h2>
+        <pre id="health-output">点击下方按钮获取健康状态</pre>
+        <button id="health-btn">获取健康状态</button>
+      </section>
+      <section id="login">
+        <h2>接口登录</h2>
+        <label>
+          用户名
+          <input id="login-username" value="admin" autocomplete="username" />
+        </label>
+        <label>
+          密码
+          <input id="login-password" type="password" value="admin123" autocomplete="current-password" />
+        </label>
+        <button id="login-btn">登录并获取请求令牌</button>
+        <pre id="login-output">未登录</pre>
+      </section>
+      <section id="screenshot">
+        <h2>网页截图示例</h2>
+        <label>
+          目标地址
+          <input id="screenshot-url" value="https://example.com" />
+        </label>
+        <button id="screenshot-btn">生成截图 (Base64)</button>
+        <textarea id="screenshot-output" rows="10"></textarea>
+      </section>
+    </main>
+    <script type="module" src="/web/main.js"></script>
+  </body>
+</html>
